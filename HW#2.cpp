@@ -2,6 +2,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <cmath>
 
 using namespace std;
 
@@ -23,14 +24,27 @@ void problemD();
 double calculateSeries(int x, int limit);
 double factorial(int n);
 
+// 문제 E
+void problemE();
+int strcnt(char *str, char c);
+void strrepl(char *str, char c, char n);
+
+// 문제 F
+void problemF();
+
+// 문제 G, H
+void problemGH();
+string cipherText(string message, int shift);
+string decodeText(string message, int shift);
+
 /*
  * 고급프로그래밍(IIT1001) 과제 2
  *
  * Written by 김현준
  */
-void main(void) {
-	problemD();
-	system("pause");
+int main(void) {
+	problemGH();
+    return 0;
 
 }
 
@@ -97,7 +111,7 @@ void problemB() {
 
 	cout << "Duplicated numbers are: ";
 
-	int previousNumber = NAN;
+	int previousNumber = -100;
 	for (int i = 0; i < input.size() - 1; i++) {
 		if (input[i] == input[i + 1] && input[i] != previousNumber) {
 			cout << input[i++] << ' ';
@@ -202,7 +216,7 @@ void problemC() {
 void problemD() {
 	double sum = 0;
 	for (int i = 1; i <= 100; i++) {
-		sum += abs(calculateSeries(i, 5) - exp(i));;
+        sum += abs(calculateSeries(i, 5) - std::exp(i));
 	}
 	cout << "Average difference is: " << sum / 100 << endl;
 }
@@ -218,4 +232,207 @@ double calculateSeries(int x, int limit) {
 		term = term * x / (i + 1);
 	}
 	return sum;
+}
+
+
+// ********************************* 문제 E *********************************
+
+void problemE() {
+    char input[] = "The quick brown fox jumps over the lazy dog";
+
+    strrepl(input, 'o', 'a');
+    cout << input << endl;
+    cout << strcnt(input, 'a') << endl;
+}
+
+/*
+ * 문자열에서 갯수 세기
+ */
+int strcnt(char *str, char c) {
+    int count = 0;
+    for(int i = 0; i < strlen(str); i++) {
+        if(str[i] == c) {
+            count++;
+        }
+    }
+    return count;
+}
+
+/*
+ * 문자열 변경
+ */
+void strrepl(char *str, char c, char n) {
+    for(int i = 0; i < strlen(str); i++) {
+        if(str[i] == c) {
+            str[i] = n;
+        }
+    }
+
+}
+
+
+// ********************************* 문제 F *********************************
+
+class Matrix {
+public:
+    
+    Matrix(int seed);
+    
+    Matrix operator + (const Matrix &operand);
+    Matrix operator - (const Matrix &operand);
+    Matrix operator * (const Matrix &operand);
+    Matrix operator / (const Matrix &operand);
+    bool operator == (const Matrix &operand);
+    
+    friend ostream &operator << (ostream &out, Matrix &matrix);
+    
+    int numbers[3][3];
+};
+
+/*
+ * 행렬을 랜덤한 값으로 초기화한다.
+ * 단 seed값이 0일 경우 영행렬로 초기화한다.
+ */
+Matrix :: Matrix(int seed) {
+    srand(seed);
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            numbers[i][j] = (seed == 0 ? 0 : rand() % 100);
+        }
+    }
+}
+
+/*
+ * 행렬의 덧셈 정의
+ */
+Matrix Matrix :: operator + (const Matrix &operand) {
+    Matrix result(0);
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            result.numbers[i][j] = numbers[i][j] + operand.numbers[i][j];
+        }
+    }
+    return result;
+}
+
+/*
+ * 행렬의 뺄셈 정의
+ */
+Matrix Matrix :: operator - (const Matrix &operand) {
+    Matrix result(0);
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            result.numbers[i][j] = numbers[i][j] - operand.numbers[i][j];
+        }
+    }
+    return result;
+}
+
+/*
+ * 행렬의 곱셈 정의
+ */
+Matrix Matrix :: operator * (const Matrix &operand) {
+    Matrix result(0);
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            for (int k = 0; k < 3; k++) {
+                result.numbers[i][j] += numbers[i][k] * operand.numbers[k][j];
+            }
+        }
+    }
+    return result;
+}
+
+/*
+ * 행렬의 나눗셈 정의
+ */
+Matrix Matrix :: operator / (const Matrix &operand) {
+    Matrix result(0);
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            result.numbers[i][j] = numbers[i][j] / operand.numbers[i][j];
+        }
+    }
+    return result;
+}
+
+/*
+ * 행렬의 항등 정의
+ */
+bool Matrix :: operator == (const Matrix &operand) {
+    bool equal = true;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            if(numbers[i][j] != operand.numbers[i][j]){
+                equal = false;
+            }
+        }
+    }
+    return equal;
+}
+
+/*
+ * 스트림을 사용하여 행렬을 콘솔에 출력하는 함수 정의
+ */
+ostream &operator << (ostream &out, Matrix &matrix) {
+    
+    for (int i = 0; i < 9; i++) {
+        out << matrix.numbers[(int)(i / 3)][i % 3] << ' ';
+        if(((i + 1) % 3) == 0) out << endl;
+    }
+    
+    return out;
+}
+
+void problemF() {
+    Matrix left(1);
+    Matrix right(2);
+    Matrix result(0);
+    Matrix addition = left + right;
+    Matrix substraction = left - right;
+    Matrix multiplication = left * right;
+    Matrix division = left / right;
+    bool equality = left == right;
+    cout << "Matrix A: " << endl;
+    cout << left << endl;
+    cout << "Matrix B: " << endl;
+    cout << right << endl;
+    cout << "A + B" << endl;
+    cout << addition << endl;
+    cout << "A - B" << endl;
+    cout << substraction << endl;
+    cout << "A * B" << endl;
+    cout << multiplication << endl;
+    cout << "A / B" << endl;
+    cout << division << endl;
+    cout << "A == B" << endl;
+    cout << equality << endl;
+}
+
+
+// ********************************* 문제 F, G *********************************
+
+void problemGH() {
+    string message = "My name is Kim HyunJun. I am very handsome";
+    string encoded = cipherText(message, 1);
+    string decoded = decodeText(encoded, 1);
+    cout << "Original message: " << message << endl;
+    cout << "Ciphered text: " << encoded << endl;
+    cout << "Decoded text: " << decoded << endl;
+}
+
+string cipherText(string message, int shift) {
+    char encodedText[message.length()];
+    for (int i = 0; i < message.length(); i++) {
+        encodedText[i] = int(message.at(i)) + shift;
+    }
+    return string(encodedText);
+}
+
+string decodeText(string message, int shift) {
+    char decodedText[message.length()];
+    for (int i = 0; i < message.length(); i++) {
+        decodedText[i] = int(message.at(i)) - shift;
+    }
+    return string(decodedText);
 }
